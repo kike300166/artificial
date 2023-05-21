@@ -1,0 +1,40 @@
+<?php
+
+// Create a new SQLite database
+$db = new PDO('sqlite:contact.db');
+
+// Create a new table
+$sql = 'CREATE TABLE contacts (
+  name VARCHAR(255),
+  email VARCHAR(255),
+  message VARCHAR(255),
+  ip VARCHAR(255),
+  date DATETIME
+);';
+
+$db->exec($sql);
+
+// Check if the form was submitted
+if (isset($_POST['name']) && isset($_POST['email']) && isset($_POST['message'])) {
+
+  // Get the form data
+  $name = $_POST['name'];
+  $email = $_POST['email'];
+  $message = $_POST['message'];
+  $ip = $_SERVER['REMOTE_ADDR'];
+  $date = date('Y-m-d H:i:s');
+
+  // Insert the data into the database
+  $sql = 'INSERT INTO contacts (name, email, message, ip, date) VALUES (?, ?, ?, ?, ?);';
+  $stmt = $db->prepare($sql);
+  $stmt->execute(array($name, $email, $message, $ip, $date));
+
+  // Send a confirmation email
+  mail($email, 'Contact Form Confirmation', "Thank you for contacting us. We will get back to you as soon as possible.");
+
+  // Redirect the user to the contact page
+  header('Location: contact.php');
+
+}
+
+?>
